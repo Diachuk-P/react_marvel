@@ -1,5 +1,5 @@
 import { Component } from "react";
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 
 import MarvelService from "../../services/MarvalService";
 import Spinner from "../spinner/spinner";
@@ -133,8 +133,9 @@ const View = ({char}) => {
 
 }
 
-CharInfo.propTypes = {
-    charId: PropTypes.number
-}
+// CharInfo.propTypes = {
+//     charId: PropTypes.number
+//
+// }
 
 export default CharInfo;

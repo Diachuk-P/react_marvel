@@ -1,5 +1,5 @@
-
-import {Component} from "react";
+import {Component} from 'react';
+import PropTypes from 'prop-types';
 
 import Spinner from "../spinner/spinner";
 import ErrorMessage from "../errorMessage/ErrorMessage";
@@ -57,6 +57,26 @@ class CharList extends Component{
         this.setState({loading: false, error: true})
     }
 
+
+    itemRefs = [];
+
+    setRef = (ref) => {
+        this.itemRefs.push(ref);
+    }
+
+    focusOnItem = (id) => {
+        // Я реализовал вариант чуть сложнее, и с классом и с фокусом
+        // Но в теории можно оставить только фокус, и его в стилях использовать вместо класса
+        // На самом деле, решение с css-классом можно сделать, вынеся персонажа
+        // в отдельный компонент. Но кода будет больше, появится новое состояние
+        // и не факт, что мы выиграем по оптимизации за счет бОльшего кол-ва элементов
+
+        // По возможности, не злоупотребляйте рефами, только в крайних случаях
+        this.itemRefs.forEach(item => item.classList.remove('char__item_selected'));
+        this.itemRefs[id].classList.add('char__item_selected');
+        this.itemRefs[id].focus();
+    }
+
     // updateChar = () => {
     //     this.marvelSevice
     //         .getAllCharacters()
@@ -66,13 +86,9 @@ class CharList extends Component{
     //         // this.foo.bar = 0;
     // }
 
-    
-    loadMore () {
-        console.log();
-    }
 
     renderItems(arr) {
-        const items =  arr.map((item) => {
+        const items =  arr.map((item, i) => {
             let imgStyle = {'objectFit' : 'cover'};
             if (item.thumbnail === 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg') {
                 imgStyle = {'objectFit' : 'unset'};
@@ -82,7 +98,19 @@ class CharList extends Component{
                 <li 
                     className="char__item"
                     key={item.id}
-                    onClick={() => this.props.onCharSelected(item.id)}>
+                    tabIndex={0}
+                    ref={this.setRef}
+                    onClick={() => {
+                        this.props.onCharSelected(item.id);
+                        this.focusOnItem(i);
+                    }}
+                    onKeyPress={(e) => {
+                        if (e.key === ' ' || e.key === "Enter") {
+                            this.props.onCharSelected(item.id);
+                            this.focusOnItem(i);
+                        }
+                    }}>
+
                         <img src={item.thumbnail} alt={item.name} style={imgStyle}/>
                         <div className="char__name">{item.name}</div>
                 </li>
@@ -107,7 +135,7 @@ class CharList extends Component{
         const content = !(loading || error) ? items : null;
         // const content = !(loading || error) ? <View charList={charList}/> : null;
         return (
-            <div className="char__list">
+                <div className="char__list">
                     {errorMessage}
                     {spinner}
                     {content}
@@ -116,17 +144,19 @@ class CharList extends Component{
                         disabled={newItemLoading}
                         onClick={() => this.onRequest(offset)}
                         style={{'display': charEnded ? 'none' : 'block'}}
-                        >
+                    >
                         <div className="inner">load more</div>
                     </button>
-            </div>
+                </div>
 
         )
     }
     
 }
 
-
+CharList.propTypes = {
+    onCharSelected: PropTypes.func.isRequired
+}
 
 // мій варіант, але не спрацював з кліком на іконку з this.props
 
